@@ -29,21 +29,22 @@ async def start(message: Message):
     await message.answer(
         "👑 SUPER MAFIA BOT\n\n"
         "🎮 Buyruqlar:\n"
-        "/newgame - Yangi o'yin\n"
+        "/game - Yangi o'yin\n"
         "/join - O'yinga qo'shilish\n"
-        "/startgame - Boshlash\n"
-        "/players - O'yinchilar\n"
-        "/cancel - 
+        "/start - Boshlash\n"
+        "/stop - oyinni toxtatish\n"
+        "/leave - oyinni tark etish\"
+        
         @router.message(Command(“newgame”))
 async def newgame(message: Message):
 chat_id = message.chat.id
 
 games[chat_id] = {
-    "players": {},
-    "roles": {},
+    "players": {30},
+    "roles": {25},
     "alive": [],
-    "votes": {},
-    "night": {},
+    "votes": {1},
+    "night": {45second},
     "phase": "waiting"
 }
 builder = InlineKeyboardBuilder()
@@ -54,7 +55,7 @@ builder.button(
 await message.answer(
     "🎮 SUPER MAFIA\n\n"
     "O‘yinga qo‘shilish uchun tugmani bosing!\n"
-    "👥 Kamida 5 o‘yinchi kerak.",
+    "👥 Kamida 4 o‘yinchi kerak.",
     reply_markup=builder.as_markup()
 )
 
@@ -83,8 +84,8 @@ await callback.message.answer(
     f"👥 Jami: {len(game['players'])} nafar"
 )await message.answer(
         "🎮 YANGI MAFIA O'YINI!\n\n"
-        "O'yinga qo'shilish uchun /join yozing.\n"
-        "Kamida 5 o'yinchi kerak."
+        "O'yinga qo'shilish uchun /qoshilish tugmasi.\n"
+        "Kamida 4 o'yinchi kerak."
     )
 
 
@@ -93,7 +94,7 @@ async def join(message: Message):
     chat_id = message.chat.id
 
     if chat_id not in games:
-        await message.answer("Avval /newgame yozing!")
+        await message.answer("Avval /game yozing!")
         return
 
     game = games[chat_id]
@@ -147,7 +148,7 @@ async def startgame(message: Message):
     game = games.get(chat_id)
 
     if not game:
-        await message.answer("Avval /newgame yozing!")
+        await message.answer("Avval /game yozing!")
         return
 
     if game["phase"] != "waiting":
@@ -176,10 +177,13 @@ async def startgame(message: Message):
     game["phase"] = "night"
 
     role_names = {
-        "mafia": "🔪 MAFIA",
+        "mafia": "🔫 MAFIA",
         "doctor": "👨‍⚕️ DOKTOR",
-        "detective": "🕵️ DETEKTIV",
-        "citizen": "👨‍🌾 FUQARO"
+        "komissar katani": "🕵️ DETEKTIV",
+        "tinch aholi": "👨‍🌾 FUQARO"
+        "qotil": "🔪 qotil"
+        "kezuvchi": "💊kezuvchi"
+        "gazabkor": "🧌 gazabkor"
     }
 
     failed = []
@@ -221,7 +225,7 @@ async def start_night(chat_id):
 
     game["phase"] = "night"
     game["night"] = {
-        "mafia": {},
+        "mafia": {5},
         "doctor": None,
         "detective": None
     }
@@ -398,7 +402,7 @@ async def start_day(chat_id):
     await bot.send_message(
         chat_id,
         "☀️ KUN BOSHLANDI!\n\n"
-        "🗳 Kimni o'yindan chiqaramiz?",
+        "🗳 Kimni osamiz?",
         reply_markup=builder.as_markup()
     )
 
