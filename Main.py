@@ -33,24 +33,55 @@ async def start(message: Message):
         "/join - O'yinga qo'shilish\n"
         "/startgame - Boshlash\n"
         "/players - O'yinchilar\n"
-        "/cancel - O'yinni bekor qilish"
-    )
-
-
-@router.message(Command("newgame"))
+        "/cancel - 
+        @router.message(Command(“newgame”))
 async def newgame(message: Message):
-    chat_id = message.chat.id
+chat_id = message.chat.id
 
-    games[chat_id] = {
-        "players": {},
-        "roles": {},
-        "alive": [],
-        "votes": {},
-        "night": {},
-        "phase": "waiting"
-    }
+games[chat_id] = {
+    "players": {},
+    "roles": {},
+    "alive": [],
+    "votes": {},
+    "night": {},
+    "phase": "waiting"
+}
+builder = InlineKeyboardBuilder()
+builder.button(
+    text="➕ O‘yinga qo‘shilish",
+    callback_data=f"join:{chat_id}"
+)
+await message.answer(
+    "🎮 SUPER MAFIA\n\n"
+    "O‘yinga qo‘shilish uchun tugmani bosing!\n"
+    "👥 Kamida 5 o‘yinchi kerak.",
+    reply_markup=builder.as_markup()
+)
 
-    await message.answer(
+@router.callback_query(F.data.startswith(“join:”))
+async def join_button(callback: CallbackQuery):
+chat_id = int(callback.data.split(”:”)[1])
+
+game = games.get(chat_id)
+if not game or game["phase"] != "waiting":
+    await callback.answer(
+        "O‘yin yopilgan!",
+        show_alert=True
+    )
+    return
+user = callback.from_user
+if user.id in game["players"]:
+    await callback.answer(
+        "Siz allaqachon qo‘shilgansiz!",
+        show_alert=True
+    )
+    return
+game["players"][user.id] = user.full_name
+await callback.answer("O‘yinga qo‘shildingiz! ✅")
+await callback.message.answer(
+    f"✅ {user.full_name} qo‘shildi!\n"
+    f"👥 Jami: {len(game['players'])} nafar"
+)await message.answer(
         "🎮 YANGI MAFIA O'YINI!\n\n"
         "O'yinga qo'shilish uchun /join yozing.\n"
         "Kamida 5 o'yinchi kerak."
