@@ -427,7 +427,7 @@ async def vote(callback: CallbackQuery):
 
         await bot.send_message(
             chat,
-            f"🚫 {game['players'][eliminated']} "
+            f"🚫 {game['players'][eliminated]} "
             "ovoz bilan chiqarildi!"
         )
     else:
